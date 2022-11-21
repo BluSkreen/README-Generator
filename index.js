@@ -5,14 +5,75 @@ const generateMarkdown = require("./utils/generateMarkdown.js");
 
 // an array of questions for user input
 const questions = [
-  "What is the path?", // input
-  "What is your github?", // input
-  "What is your email?", // input
-  "What is the title?", // input
-  "Give it a description.", // input
-  "What is the usage?", // input
-  "What else will be included?", // checkbox
-  "What license will this use?", // list
+  {
+    name: "path",
+    type: "input",
+    message: "What is the path?",
+  },
+  {
+    name: "github",
+    type: "input",
+    message: "What is your github?",
+  },
+  {
+    name: "email",
+    type: "input",
+    message: "What is your email?",
+  },
+  {
+    name: "title",
+    type: "input",
+    message: "What is the title?",
+  },
+  {
+    name: "description",
+    type: "input",
+    message: "Give it a description.",
+  },
+  {
+    name: "usage",
+    type: "input",
+    message: "What is the usage?",
+  },
+  {
+    name: "other",
+    type: "checkbox",
+    message: "What else will be included?",
+    choices: ["Table of Contents", "install", "credits", "contribute"],
+  },
+  {
+    name: "install",
+    type: "input",
+    message: "What are the installation instructions?",
+    choices: ["Table of Contents", "install", "credits", "contribute"],
+    when: (response) => response.other.includes("install"),
+  },
+  {
+    name: "credits",
+    type: "input",
+    message: "Who are the contributors?",
+    choices: ["Table of Contents", "install", "credits", "contribute"],
+    when: (response) => response.other.includes("credits"),
+  },
+  {
+    name: "contribute",
+    type: "input",
+    message: "How can people contribute?",
+    choices: ["Table of Contents", "install", "credits", "contribute"],
+    when: (response) => response.other.includes("contribute"),
+  },
+  {
+    name: "license",
+    type: "list",
+    message: "What license will this use?",
+    choices: ["MIT", "GPL-3.0L", "Apache-2.0", "CDDL-1.0", "MPL-2.0", "other"],
+  },
+  {
+    name: "otherLicense",
+    type: "input",
+    message: "What license will this use?",
+    when: (response) => response.license === "other",
+  },
 ];
 
 // TODO: Create a function to write README file
@@ -25,54 +86,12 @@ function writeToFile({ path, content }) {
 
 // TODO: Create a function to initialize app
 function init() {
-  const [pathQ, githubQ, emailQ, titleQ, descriptionQ, usageQ, otherQ, licenseQ] = questions;
-
   inquirer
-    .prompt([
-      {
-        name: "path",
-        type: "input",
-        message: pathQ,
-      },
-      {
-        name: "github",
-        type: "input",
-        message: githubQ,
-      },
-      {
-        name: "email",
-        type: "input",
-        message: emailQ,
-      },
-      {
-        name: "title",
-        type: "input",
-        message: titleQ,
-      },
-      {
-        name: "description",
-        type: "input",
-        message: descriptionQ,
-      },
-      {
-        name: "usage",
-        type: "input",
-        message: usageQ,
-      },
-      {
-        name: "other",
-        type: "checkbox",
-        message: otherQ,
-        choices: ["Table of Contents", "install", "credits"],
-      },
-      {
-        name: "license",
-        type: "list",
-        message: licenseQ,
-        choices: ["MIT", "GPL-3.0L", "Apache-2.0", "CDDL-1.0", "MPL-2.0"],
-      },
-    ])
+    .prompt(questions)
     .then((response) => {
+      response.license = response.otherLicense;
+      response.license = response.license.replace(/-/g, "--");
+      console.log(response.license);
       console.log(response);
       const markdown = generateMarkdown(response);
       response["content"] = markdown;
@@ -80,6 +99,6 @@ function init() {
     });
 }
 
-// Function call to initialize app
+// initialize app
 init();
 // ./readMeFile/
