@@ -45,28 +45,25 @@ const questions = [
     name: "install",
     type: "input",
     message: "What are the installation instructions?",
-    choices: ["Table of Contents", "install", "credits", "contribute"],
     when: (response) => response.other.includes("install"),
   },
   {
     name: "credits",
     type: "input",
     message: "Who are the contributors?",
-    choices: ["Table of Contents", "install", "credits", "contribute"],
     when: (response) => response.other.includes("credits"),
   },
   {
     name: "contribute",
     type: "input",
     message: "How can people contribute?",
-    choices: ["Table of Contents", "install", "credits", "contribute"],
     when: (response) => response.other.includes("contribute"),
   },
   {
     name: "license",
     type: "list",
     message: "What license will this use?",
-    choices: ["MIT", "GPL-3.0L", "Apache-2.0", "CDDL-1.0", "MPL-2.0", "other"],
+    choices: ["MIT", "GPL-3.0", "Apache-2.0", "CDDL-1.0", "MPL-2.0", "other"],
   },
   {
     name: "otherLicense",
@@ -76,27 +73,32 @@ const questions = [
   },
 ];
 
-// TODO: Create a function to write README file
+// write README file
 function writeToFile({ path, content }) {
   // console.log(`${path}\n${content}`);
+
+  // use the path from response and concat the filename README.md
+  // write the markdown text thats paired with "content" to a file
   fs.writeFile(path + "README.md", content, (err) => {
     err ? console.error(err) : console.log("success");
   });
 }
 
-// TODO: Create a function to initialize app
+// initialize app
 function init() {
-  inquirer
-    .prompt(questions)
-    .then((response) => {
+  inquirer.prompt(questions).then((response) => {
+    // if "other" license was chosen then replace .license
+    if (response.otherLicense != undefined) {
       response.license = response.otherLicense;
-      response.license = response.license.replace(/-/g, "--");
-      console.log(response.license);
-      console.log(response);
-      const markdown = generateMarkdown(response);
-      response["content"] = markdown;
-      writeToFile(response);
-    });
+    }
+    // console.log(response.license);
+    // console.log(response);
+
+    // put markdown text in response object
+    const markdown = generateMarkdown(response);
+    response["content"] = markdown;
+    writeToFile(response);
+  });
 }
 
 // initialize app
